@@ -1,0 +1,168 @@
+#include <vector>
+#include <iostream>
+#include <unordered_map>
+#include <map>
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <array>
+
+using namespace std;
+
+std::vector<int> pivotPoints;
+
+int mazeDimension(string maze)
+{
+    return maze.find("\n") + 1;
+}
+
+void storePivots(int points, std::vector<int> &pivots)
+{
+    pivots.push_back(points);
+    for (auto x : pivots)
+        std::cout << "pivots are at :" << x << "\n";
+}
+
+int MoveAndUpdate(int &currentPos, std::vector<bool> &visitedPos, std::string maze)
+{
+    int rowSize = mazeDimension(maze);
+    int possiblePoits = 0;
+
+    // moving directions: South, East, West, North
+    array<int, 4> directions = {rowSize, 1, -1, -rowSize};
+
+    std::cout << "\n"
+              << "---------------------"
+              << "\n";
+
+    // check all directions
+    for (auto x : directions)
+    {
+        // store Pivots
+        if (maze[currentPos + x] == '.' && !visitedPos[currentPos + x])
+        {
+            possiblePoits++;
+            if (possiblePoits > 1)
+            {
+                std::cout << "FOUND PIVOTS "
+                          << "\n";
+                storePivots(currentPos, pivotPoints);
+            }
+        }
+    }
+    possiblePoits = 0; // restart pivot counter
+
+    for (auto x : directions)
+    {
+        std::cout << "checking :" << currentPos + x << " there is :" << maze[currentPos + x] << " status :" << visitedPos[currentPos + x] << "\n";
+
+        if (maze[currentPos + x] == '.' && !visitedPos[currentPos + x])
+        {
+            currentPos += x;
+            visitedPos[currentPos] = true;
+            std::cout << "new pos :" << currentPos << " status :" << visitedPos[currentPos] << "\n";
+            break;
+        }
+    }
+
+    return currentPos;
+}
+
+void printMaze(std::string maze)
+{
+    std::cout << "\n"
+              << "---------------------"
+              << "\n";
+
+    std::cout << "dimension :" << maze.find("\n") + 1 << "\n";
+    std::cout << "MAZE size: " << maze.size() << "\n";
+    std::cout << maze;
+}
+
+bool path_finder(string maze)
+{
+    // TODO: Determine whether one can reach the exit at (n - 1, n - 1)
+    // starting from (0, 0) in a n × n maze (represented as a string)
+    // and return a boolean value accordingly
+    printMaze(maze);
+
+    int mazeSize = maze.size();
+    int mazeEnd = mazeSize - 1;
+    int prevPos = 0;
+    std::vector<bool> visitedPos(mazeSize, false);
+    int currentPos = 0;
+    visitedPos[currentPos] = true;
+    bool deadEnd = false;
+
+    // edge case
+    size_t found = maze.find("W");
+    if (found == string::npos)
+    {
+        std::cout << "\n"
+                  << "FREE MAZE "
+                  << "\n";
+        return true;
+    }
+    if (maze[mazeEnd - (maze.find("\n") + 1)] == 'W' && maze[mazeEnd - 1] == 'W')
+    {
+        std::cout << "BLOCKED MAZE "
+                  << "\n";
+        return false;
+    }
+    //
+
+    while (currentPos != mazeSize)
+    {
+        if (deadEnd && !pivotPoints.empty())
+        {
+            currentPos = pivotPoints.at(0);
+            std::cout << "back to pivot, currentPos = " << currentPos << "\n";
+            MoveAndUpdate(currentPos, visitedPos, maze);
+            pivotPoints.erase(pivotPoints.begin());
+
+            deadEnd = false;
+        }
+        else if (deadEnd && pivotPoints.empty())
+        {
+            std::cout << "true dead end bro"
+                      << "\n";
+            return false;
+        }
+        else
+        {
+        }
+
+        prevPos = currentPos;
+        MoveAndUpdate(currentPos, visitedPos, maze);
+
+        if (prevPos == currentPos)
+        {
+            std::cout << "\n"
+                      << "DEAD END at :" << currentPos << "\n";
+            deadEnd = true;
+        }
+        if (currentPos == mazeEnd)
+        {
+            std::cout << "\n"
+                      << "WIN! "
+                      << "\n";
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int main()
+{
+    std::string maze = ".W...W...W...\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n...W...W...W.";
+    if (path_finder(maze))
+        std::cout << "true"
+                  << "\n";
+    else
+        std::cout << "false"
+                  << "\n";
+
+    return 0;
+}
