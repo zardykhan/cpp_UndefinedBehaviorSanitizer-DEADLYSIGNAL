@@ -10,13 +10,16 @@
 
 using namespace std;
 
+// global variable for storing pivots: points that have several ways to move from
 std::vector<int> pivotPoints;
 
+// function to get maze dimention
 int mazeDimension(string maze)
 {
     return maze.find("\n") + 1;
 }
 
+// storing pivot points: points that have several ways to move from
 void storePivots(int points, std::vector<int> &pivots)
 {
     pivots.push_back(points);
@@ -24,6 +27,8 @@ void storePivots(int points, std::vector<int> &pivots)
         std::cout << "pivots are at :" << x << "\n";
 }
 
+// update the current position and move
+// also set the positions have were visited to "visited"
 int MoveAndUpdate(int &currentPos, std::vector<bool> &visitedPos, std::string maze)
 {
     int rowSize = mazeDimension(maze);
@@ -53,6 +58,7 @@ int MoveAndUpdate(int &currentPos, std::vector<bool> &visitedPos, std::string ma
     }
     possiblePoits = 0; // restart pivot counter
 
+    // moving and updating
     for (auto x : directions)
     {
         std::cout << "checking :" << currentPos + x << " there is :" << maze[currentPos + x] << " status :" << visitedPos[currentPos + x] << "\n";
@@ -69,6 +75,7 @@ int MoveAndUpdate(int &currentPos, std::vector<bool> &visitedPos, std::string ma
     return currentPos;
 }
 
+// printing mazes for debugging
 void printMaze(std::string maze)
 {
     std::cout << "\n"
@@ -80,6 +87,7 @@ void printMaze(std::string maze)
     std::cout << maze;
 }
 
+// main function
 bool path_finder(string maze)
 {
     // TODO: Determine whether one can reach the exit at (n - 1, n - 1)
@@ -95,7 +103,7 @@ bool path_finder(string maze)
     visitedPos[currentPos] = true;
     bool deadEnd = false;
 
-    // edge case
+    // edge cases
     size_t found = maze.find("W");
     if (found == string::npos)
     {
@@ -110,8 +118,8 @@ bool path_finder(string maze)
                   << "\n";
         return false;
     }
-    //
-
+    
+    // move until end is reached
     while (currentPos != mazeSize)
     {
         if (deadEnd && !pivotPoints.empty())
@@ -156,6 +164,7 @@ bool path_finder(string maze)
 
 int main()
 {
+    // test maze
     std::string maze = ".W...W...W...\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n.W.W.W.W.W.W.\n...W...W...W.";
     if (path_finder(maze))
         std::cout << "true"
